@@ -1,0 +1,164 @@
+# Cloudflare Workers Configuration
+# This file configures your Cloudflare Workers deployment
+# Documentation: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "svg-converter"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# ============================================================================
+# Account Configuration
+# ============================================================================
+
+# Your Cloudflare account ID
+# Find it at: https://dash.cloudflare.com/ → Workers & Pages → Account ID
+account_id = "your_account_id_here"
+
+# ============================================================================
+# Workers Configuration
+# ============================================================================
+
+# Workers can run on "node" or "modules" syntax
+# For Next.js on Cloudflare Pages, use modules
+workers_dev = true
+
+# Route patterns (for production deployment)
+# Uncomment and configure when deploying to production
+# routes = [
+#   { pattern = "svgconvert.net/api/*", zone_name = "svgconvert.net" }
+# ]
+
+# ============================================================================
+# R2 Bucket Bindings
+# ============================================================================
+
+[[r2_buckets]]
+binding = "SVG_CONVERTER_BUCKET"
+bucket_name = "svg-converter"
+preview_bucket_name = "svg-converter-preview"
+
+# ============================================================================
+# D1 Database Bindings
+# ============================================================================
+
+[[d1_databases]]
+binding = "SVG_CONVERTER_DB"
+database_name = "svg-converter"
+database_id = "your_d1_database_id_here"
+preview_database_id = "your_d1_preview_database_id_here"
+
+# ============================================================================
+# KV Namespace Bindings
+# ============================================================================
+
+[[kv_namespaces]]
+binding = "SVG_CONVERTER_KV"
+id = "your_kv_namespace_id_here"
+preview_id = "your_kv_preview_namespace_id_here"
+
+# ============================================================================
+# Queue Bindings
+# ============================================================================
+
+[[queues.producers]]
+binding = "SVG_CONVERTER_QUEUE"
+queue = "svg-converter-queue"
+
+[[queues.consumers]]
+queue = "svg-converter-queue"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+dead_letter_queue = "svg-converter-dlq"
+
+# ============================================================================
+# Environment Variables
+# ============================================================================
+
+[vars]
+# Public variables (safe to expose)
+R2_PUBLIC_URL = "https://svg-converter.r2.dev"
+MAX_FILE_SIZE = "20971520"  # 20MB
+FILE_RETENTION_MINUTES = "30"
+
+# ============================================================================
+# Secrets (Set via CLI)
+# ============================================================================
+
+# Set secrets using: wrangler secret put <NAME>
+# Required secrets:
+# - VPS_CALLBACK_SECRET: Token for VPS authentication
+# - R2_ACCESS_KEY_ID: R2 access key (if using S3 API)
+# - R2_SECRET_ACCESS_KEY: R2 secret key (if using S3 API)
+
+# Example commands:
+# wrangler secret put VPS_CALLBACK_SECRET
+# wrangler secret put R2_ACCESS_KEY_ID
+# wrangler secret put R2_SECRET_ACCESS_KEY
+
+# ============================================================================
+# Build Configuration
+# ============================================================================
+
+[build]
+command = "npm run build"
+
+[build.upload]
+format = "modules"
+main = "./dist/index.js"
+
+# ============================================================================
+# Development Configuration
+# ============================================================================
+
+[dev]
+ip = "0.0.0.0"
+port = 8787
+local_protocol = "http"
+
+# ============================================================================
+# Deployment Configuration
+# ============================================================================
+
+# Triggers configuration
+[triggers]
+# Cron triggers for cleanup tasks
+crons = ["0 */1 * * *"]  # Run cleanup every hour
+
+# ============================================================================
+# Observability
+# ============================================================================
+
+[observability]
+enabled = true
+
+# Logpush configuration
+# [logpush]
+# enabled = true
+
+# ============================================================================
+# Notes for Production Deployment
+# ============================================================================
+
+# 1. Create R2 bucket:
+#    wrangler r2 bucket create svg-converter
+#
+# 2. Create D1 database:
+#    wrangler d1 create svg-converter
+#
+# 3. Create KV namespace:
+#    wrangler kv:namespace create "SVG_CONVERTER_KV"
+#
+# 4. Create Queue:
+#    wrangler queues create svg-converter-queue
+#    wrangler queues create svg-converter-dlq
+#
+# 5. Set secrets:
+#    wrangler secret put VPS_CALLBACK_SECRET
+#
+# 6. Deploy:
+#    wrangler deploy
+#
+# 7. Set up custom domain:
+#    - Go to Workers & Pages → your worker → Settings → Domains
+#    - Add custom domain: api.svgconvert.net
