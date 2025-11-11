@@ -2,6 +2,7 @@ import type React from "react"
 import { Geist, Geist_Mono, Inter, Roboto_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { LanguageSetter } from "@/components/language-setter"
 import { locales, type Locale } from "@/app/i18n"
 import "../globals.css"
 
@@ -31,17 +32,15 @@ export default async function LangLayout({
 }: Readonly<LangLayoutProps>) {
   const { lang: paramLang } = await params
   const lang = (paramLang && locales.includes(paramLang as Locale) ? paramLang : "en") as Locale
-  const htmlLang = langMap[lang] || "en"
 
   return (
-    <html lang={htmlLang} suppressHydrationWarning>
-      <body className={`${inter.variable} ${robotoMono.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          {children}
-        </ThemeProvider>
-        <Analytics />
-      </body>
-    </html>
+    <div className={`${inter.variable} ${robotoMono.variable} font-sans antialiased`}>
+      <LanguageSetter lang={lang} />
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        {children}
+      </ThemeProvider>
+      <Analytics />
+    </div>
   )
 }
 
