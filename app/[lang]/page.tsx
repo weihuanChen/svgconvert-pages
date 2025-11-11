@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Upload, Sun, Moon, Share2, Download, X, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -38,23 +38,21 @@ export default function SVGConverterPage({ params }: PageProps) {
   const [batchProcess, setBatchProcess] = useState(false)
   const { theme, setTheme } = useTheme()
   const [copied, setCopied] = useState(false)
-  const [mounted, setMounted] = useState(false)
   const [lang, setLang] = useState<Locale>(defaultLocale)
-  const [isLoading, setIsLoading] = useState(true)
+
+  // 使用 useMemo 避免在 useEffect 中处理 Promise
+  const langPromise = useMemo(() => params, [params])
 
   useEffect(() => {
-    setMounted(true)
-    // Get language from params
-    params.then((p) => {
+    langPromise.then((p) => {
       const paramLang = p.lang as Locale
       if (locales.includes(paramLang)) {
         setLang(paramLang)
       } else {
         setLang(defaultLocale)
       }
-      setIsLoading(false)
     })
-  }, [params])
+  }, [langPromise])
 
   const t = getTranslation(lang)
 
@@ -130,21 +128,19 @@ export default function SVGConverterPage({ params }: PageProps) {
   }
 
   const copyLink = () => {
-    const currentUrl = window.location.href
-    navigator.clipboard.writeText(currentUrl).then(() => {
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    })
+    const currentUrl = typeof window !== "undefined" ? window.location.href : ""
+    if (currentUrl) {
+      navigator.clipboard.writeText(currentUrl).then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      })
+    }
   }
 
   const handleLanguageChange = (newLang: string) => {
     if (locales.includes(newLang as Locale)) {
       router.push(`/${newLang}`)
     }
-  }
-
-  if (!mounted || isLoading) {
-    return null
   }
 
   return (
@@ -441,4 +437,3 @@ export default function SVGConverterPage({ params }: PageProps) {
     </div>
   )
 }
-
