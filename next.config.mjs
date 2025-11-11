@@ -1,6 +1,7 @@
 const nextConfig = {
-  // Export as static site for Cloudflare Pages
-  output: 'export',
+  // Use standalone for Cloudflare Pages
+  // This allows both static pages and dynamic API routes
+  output: 'standalone',
   typescript: {
     ignoreBuildErrors: true,
   },
