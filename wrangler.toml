@@ -21,12 +21,16 @@ ENVIRONMENT = "production"
 # Production Environment (Pages only supports: preview, production)
 # ============================================================================
 
-[env.production]
-vars = { ENVIRONMENT = "production" }
+[env.production.vars]
+ENVIRONMENT = "production"
+R2_PUBLIC_URL = "https://pub-62d5cc9053a54840a2075d357d13940e.r2.dev"
+MAX_FILE_SIZE = "20971520"
+FILE_RETENTION_MINUTES = "30"
+R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
 
-# ============================================================================
-# Preview Environment
-# ============================================================================
-
-[env.preview]
-vars = { ENVIRONMENT = "preview" }
+[env.preview.vars]
+ENVIRONMENT = "preview"
+R2_PUBLIC_URL = "https://pub-62d5cc9053a54840a2075d357d13940e.r2.dev"
+MAX_FILE_SIZE = "20971520"
+FILE_RETENTION_MINUTES = "30"
+R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
