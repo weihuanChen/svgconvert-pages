@@ -15,10 +15,10 @@ compatibility_flags = ["nodejs_compat"]
 # ============================================================================
 pages_build_output_dir = ".open-next"
 [vars]
-R2_PUBLIC_URL = "https://pub-bf3c9ba2f1304bd08d48ee78c54b9a14.r2.dev"
+# R2_PUBLIC_URL = "https://pub-bf3c9ba2f1304bd08d48ee78c54b9a14.r2.dev"
 MAX_FILE_SIZE = "20971520"  # 20MB
 FILE_RETENTION_MINUTES = "30"
-R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
+# R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
 ENVIRONMENT = "production"
 NEXT_PUBLIC_API_BASE_URL = "https://svgconvert-server.zeabur.app/api"
 NEXT_PUBLIC_APP_URL = "https://svgconvert-server.zeabur.app"
@@ -29,18 +29,18 @@ NEXT_PUBLIC_APP_URL = "https://svgconvert-server.zeabur.app"
 
 [env.production.vars]
 ENVIRONMENT = "production"
-R2_PUBLIC_URL = "https://pub-bf3c9ba2f1304bd08d48ee78c54b9a14.r2.dev"
-MAX_FILE_SIZE = "20971520"
-FILE_RETENTION_MINUTES = "30"
-R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
+# R2_PUBLIC_URL = "https://pub-bf3c9ba2f1304bd08d48ee78c54b9a14.r2.dev"
+# MAX_FILE_SIZE = "20971520"
+# FILE_RETENTION_MINUTES = "30"
+# R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
 NEXT_PUBLIC_API_BASE_URL = "https://svgconvert-server.zeabur.app/api"
 NEXT_PUBLIC_APP_URL = "https://svgconvert-server.zeabur.app"
 
 [env.preview.vars]
 ENVIRONMENT = "preview"
-R2_PUBLIC_URL = "https://pub-bf3c9ba2f1304bd08d48ee78c54b9a14.r2.dev"
+# R2_PUBLIC_URL = "https://pub-bf3c9ba2f1304bd08d48ee78c54b9a14.r2.dev"
 MAX_FILE_SIZE = "20971520"
 FILE_RETENTION_MINUTES = "30"
-R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
+# R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
 NEXT_PUBLIC_API_BASE_URL = "https://svgconvert-server.zeabur.app/api"
 NEXT_PUBLIC_APP_URL = "https://svgconvert-server.zeabur.app"
