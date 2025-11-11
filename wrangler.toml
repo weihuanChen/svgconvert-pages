@@ -9,7 +9,6 @@ compatibility_flags = ["nodejs_compat"]
 
 # Output directory from Next.js build
 # Using .next since that's what npx next build generates
-pages_build_output_dir = ".next"
 
 # ============================================================================
 # Environment Variables (Available to frontend)
