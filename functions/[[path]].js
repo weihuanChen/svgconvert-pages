@@ -3,9 +3,11 @@
  * 
  * This function handles routing and redirects for the Next.js application.
  * It runs before any static files are served.
+ * 
+ * File must be JavaScript (not TypeScript) for Cloudflare Pages Functions.
  */
 
-export const onRequest: PagesFunction = async (context) => {
+export async function onRequest(context) {
   const { request } = context
   const url = new URL(request.url)
   const pathname = url.pathname
