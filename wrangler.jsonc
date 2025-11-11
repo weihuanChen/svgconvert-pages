@@ -1,0 +1,45 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "svgconvert-next",
+  "compatibility_date": "2024-12-30",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "svgconvert-next"
+    }
+  ],
+  "env": {
+    "production": {
+      "vars": {
+        "ENVIRONMENT": "production",
+        "R2_PUBLIC_URL": "https://pub-62d5cc9053a54840a2075d357d13940e.r2.dev",
+        "MAX_FILE_SIZE": "20971520",
+        "FILE_RETENTION_MINUTES": "30",
+        "R2_ACCOUNT_ID": "916a9ebd0967327020ed90ad654875f6",
+        "NEXT_PUBLIC_API_BASE_URL": "https://svgconvert-server.zeabur.app/api",
+        "NEXT_PUBLIC_APP_URL": "https://svgconvert-server.zeabur.app"
+      }
+    },
+    "preview": {
+      "vars": {
+        "ENVIRONMENT": "preview",
+        "R2_PUBLIC_URL": "https://pub-bf3c9ba2f1304bd08d48ee78c54b9a14.r2.dev",
+        "MAX_FILE_SIZE": "20971520",
+        "FILE_RETENTION_MINUTES": "30",
+        "R2_ACCOUNT_ID": "916a9ebd0967327020ed90ad654875f6",
+        "NEXT_PUBLIC_API_BASE_URL": "https://svgconvert-server.zeabur.app/api",
+        "NEXT_PUBLIC_APP_URL": "https://svgconvert-server.zeabur.app"
+      }
+    }
+  }
+}
+
