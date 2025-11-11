@@ -13,7 +13,7 @@ compatibility_flags = ["nodejs_compat"]
 # ============================================================================
 # Environment Variables (Available to frontend)
 # ============================================================================
-
+pages_build_output_dir = ".open-next"
 [vars]
 R2_PUBLIC_URL = "https://pub-bf3c9ba2f1304bd08d48ee78c54b9a14.r2.dev"
 MAX_FILE_SIZE = "20971520"  # 20MB
