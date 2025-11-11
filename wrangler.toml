@@ -1,10 +1,18 @@
-# Cloudflare Pages Configuration
-# This is the main configuration file for Pages deployment
+# Cloudflare Pages Configuration for Next.js
+# Using @cloudflare/next-on-pages
 # Documentation: https://developers.cloudflare.com/pages/platform/build-configuration/
 
 name = "svg-converter"
-compatibility_date = "2024-01-01"
-pages_build_output_dir = "out"
+compatibility_date = "2025-11-11"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+# ============================================================================
+# Build Configuration
+# ============================================================================
+
+[build]
+command = "npm run pages:build"
 
 # ============================================================================
 # Environment Variables (Available to frontend)

@@ -18,8 +18,8 @@ import type {
 } from '@/types/cloudflare'
 import { generateTaskId, generateR2Key, getMimeType } from '@/types/cloudflare'
 
-// Mark as dynamic for static export
-export const dynamic = 'force-dynamic'
+// Edge runtime for Cloudflare Pages
+export const runtime = 'edge'
 
 // Maximum file size: 20MB
 const MAX_FILE_SIZE = 20 * 1024 * 1024

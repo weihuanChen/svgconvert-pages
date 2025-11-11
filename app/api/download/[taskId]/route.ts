@@ -7,8 +7,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { DownloadResponse, ErrorResponse, TaskMetadata, CloudflareEnv } from '@/types/cloudflare'
 
-// Mark as dynamic for static export
-export const dynamic = 'force-dynamic'
+// Edge runtime for Cloudflare Pages
+export const runtime = 'edge'
 
 // Pre-signed URL expiration time (15 minutes)
 const URL_EXPIRATION_SECONDS = 15 * 60
