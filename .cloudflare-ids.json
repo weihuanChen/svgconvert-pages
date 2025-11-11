@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "description": "Cloudflare 资源 ID 和配置信息",
+    "lastUpdated": "2025-11-11T02:43:00Z",
+    "status": "production-ready",
+    "version": "1.0"
+  },
+  "account": {
+    "id": "916a9ebd0967327020ed90ad654875f6",
+    "name": "svg-converter"
+  },
+  "r2": {
+    "bucket": {
+      "name": "svg-converter",
+      "binding": "SVG_CONVERTER_BUCKET",
+      "purpose": "Source files and conversion results storage",
+      "region": "auto"
+    }
+  },
+  "d1": {
+    "database": {
+      "name": "svg-converter",
+      "binding": "SVG_CONVERTER_DB",
+      "production_id": "6762c777-6807-438c-801e-e3f743aa6a5e",
+      "preview_id": "6762c777-6807-438c-801e-e3f743aa6a5e",
+      "purpose": "Task metadata and user data storage",
+      "region": "APAC"
+    }
+  },
+  "kv": {
+    "namespace": {
+      "name": "SVG_CONVERTER_KV",
+      "binding": "SVG_CONVERTER_KV",
+      "production_id": "d6f9b75693384b869b13edae0a84f485",
+      "production_title": "SVG_CONVERTER_KV",
+      "preview_id": "ecc92269f04f49b49f6bbf2d106e0993",
+      "preview_title": "SVG_CONVERTER_KV_preview",
+      "purpose": "Cache and task status storage",
+      "supports_url_encoding": true
+    }
+  },
+  "queues": {
+    "producer": {
+      "name": "svg-converter-queue",
+      "binding": "SVG_CONVERTER_QUEUE",
+      "purpose": "Task distribution and processing"
+    },
+    "consumer": {
+      "queue": "svg-converter-queue",
+      "max_batch_size": 10,
+      "max_batch_timeout": 30,
+      "max_retries": 3,
+      "dead_letter_queue": "svg-converter-dlq"
+    },
+    "dlq": {
+      "name": "svg-converter-dlq",
+      "purpose": "Dead letter queue for failed tasks"
+    }
+  },
+  "secrets": {
+    "VPS_CALLBACK_SECRET": {
+      "type": "secret_text",
+      "purpose": "VPS callback authentication token",
+      "status": "configured"
+    },
+    "R2_ACCESS_KEY_ID": {
+      "type": "secret_text",
+      "purpose": "R2 API access key ID",
+      "status": "configured"
+    },
+    "R2_SECRET_ACCESS_KEY": {
+      "type": "secret_text",
+      "purpose": "R2 API secret access key",
+      "status": "configured"
+    },
+    "D1_DATABASE_ID": {
+      "type": "secret_text",
+      "purpose": "D1 database ID",
+      "status": "configured"
+    },
+    "KV_NAMESPACE_ID": {
+      "type": "secret_text",
+      "purpose": "KV namespace ID",
+      "status": "configured"
+    }
+  },
+  "environment_variables": {
+    "R2_PUBLIC_URL": {
+      "value": "https://pub-62d5cc9053a54840a2075d357d13940e.r2.dev",
+      "type": "vars",
+      "purpose": "R2 bucket public URL"
+    },
+    "R2_ACCOUNT_ID": {
+      "value": "916a9ebd0967327020ed90ad654875f6",
+      "type": "vars",
+      "purpose": "Cloudflare account ID"
+    },
+    "MAX_FILE_SIZE": {
+      "value": "20971520",
+      "unit": "bytes",
+      "readable": "20MB",
+      "type": "vars",
+      "purpose": "Maximum file size for uploads"
+    },
+    "FILE_RETENTION_MINUTES": {
+      "value": "30",
+      "unit": "minutes",
+      "type": "vars",
+      "purpose": "File retention period"
+    }
+  },
+  "verification": {
+    "r2_created": true,
+    "d1_created": true,
+    "kv_created": true,
+    "queues_created": true,
+    "secrets_configured": true,
+    "wrangler_toml_updated": true
+  },
+  "quick_commands": {
+    "verify_config": "wrangler deploy --dry-run",
+    "list_d1": "wrangler d1 list",
+    "list_kv": "wrangler kv namespace list",
+    "list_r2": "wrangler r2 bucket list",
+    "list_queues": "wrangler queues list",
+    "list_secrets": "wrangler secret list",
+    "deploy": "wrangler deploy",
+    "logs": "wrangler tail"
+  },
+  "documentation": {
+    "setup_complete": "CLOUDFLARE_SETUP_COMPLETE.md",
+    "config_reference": "CLOUDFLARE_CONFIG_REFERENCE.md",
+    "deployment_checklist": "DEPLOYMENT_CHECKLIST.md",
+    "backend_guide": "docs/BACKEND_DEVELOPMENT_GUIDE.md"
+  }
+}
+
