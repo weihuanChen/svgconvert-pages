@@ -1,17 +1,15 @@
 # Cloudflare Pages Configuration for Next.js
-# Using @cloudflare/next-on-pages
+# Using @cloudflare/next-on-pages adapter
+# https://github.com/cloudflare/next-on-pages
 # Documentation: https://developers.cloudflare.com/pages/platform/build-configuration/
-#
-# IMPORTANT: For proper deployment with @cloudflare/next-on-pages, set in dashboard:
-#   Build command: npm run pages:build
-#   Build output directory: .vercel/output/static
-#
-# Temporary: Using .next for now until dashboard is updated
 
 name = "svg-converter"
 compatibility_date = "2025-11-11"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".next"
+
+# For @cloudflare/next-on-pages, the output directory is .vercel/output/static
+# Set build command in Cloudflare Pages dashboard to: npm run pages:build
+pages_build_output_dir = ".vercel/output/static"
 
 # ============================================================================
 # Environment Variables (Available to frontend)
