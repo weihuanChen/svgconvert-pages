@@ -7,9 +7,9 @@ name = "svg-converter"
 compatibility_date = "2025-11-11"
 compatibility_flags = ["nodejs_compat"]
 
-# For @cloudflare/next-on-pages, the output directory is .vercel/output/static
-# Set build command in Cloudflare Pages dashboard to: npm run pages:build
-pages_build_output_dir = ".vercel/output/static"
+# Output directory from Next.js build
+# Using .next since that's what npx next build generates
+pages_build_output_dir = ".next"
 
 # ============================================================================
 # Environment Variables (Available to frontend)
