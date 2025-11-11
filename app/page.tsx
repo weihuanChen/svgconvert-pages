@@ -1,24 +1,31 @@
 /**
  * Root page (/)
  * 
- * For static export, we use an HTML meta redirect to /ja
- * This ensures the file is generated as out/index.html
+ * Simple root directory page
+ * Returns basic HTML without redirects for debugging
  */
 
 export const metadata = {
-  title: 'SVG Converter',
-  description: 'Convert SVG files to PNG, JPG, PDF, EPS',
+  title: 'SVG Converter - Root',
+  description: 'SVG Converter Application',
 }
 
 export default function RootPage() {
-  // For static export, we render a simple page with a meta redirect
   return (
     <html>
       <head>
-        <meta httpEquiv="refresh" content="0; url=/ja" />
+        <title>SVG Converter</title>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body>
-        <p>Redirecting to Japanese version...</p>
+      <body style={{ fontFamily: 'sans-serif', padding: '20px' }}>
+        <h1>SVG Converter</h1>
+        <p>Welcome to the SVG Converter application.</p>
+        <ul>
+          <li><a href="/ja">日本語 (Japanese)</a></li>
+          <li><a href="/en">English</a></li>
+          <li><a href="/zh">中文 (Chinese)</a></li>
+        </ul>
       </body>
     </html>
   )
