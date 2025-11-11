@@ -1,14 +1,18 @@
 # Cloudflare Workers Configuration (API Routes)
 # 
-# NOTE: This file is for reference only. Currently, API routes are deployed
-# with the Pages frontend. If you need to deploy API routes separately
-# as dedicated Workers, uncomment the sections below and add a main entry point.
+# This Worker handles:
+# 1. Queue Consumer: Processing SVG conversion tasks
+# 2. Cron Trigger: Cleaning up expired files every 30 minutes
+# 3. Direct access to Cloudflare resources (R2, D1, KV, Queue)
 #
-# Use this for deploying API workers: wrangler deploy -c wrangler.workers.toml
+# Deploy: wrangler deploy -c wrangler.workers.toml
 # Documentation: https://developers.cloudflare.com/workers/wrangler/configuration/
 
 name = "svg-converter-api"
 compatibility_date = "2024-01-01"
+
+# Entry point for the Worker
+main = "src/worker.ts"
 
 # ============================================================================
 # Account Configuration
