@@ -20,14 +20,17 @@ const langMap: Record<Locale, string> = {
   zh: "zh",
 }
 
-export default function LangLayout({
-  children,
-  params,
-}: Readonly<{
+interface LangLayoutProps {
   children: React.ReactNode
   params: Promise<{ lang: string }>
-}>) {
-  const lang = (params as any).lang as Locale || "en"
+}
+
+export default async function LangLayout({
+  children,
+  params,
+}: Readonly<LangLayoutProps>) {
+  const { lang: paramLang } = await params
+  const lang = (paramLang && locales.includes(paramLang as Locale) ? paramLang : "en") as Locale
   const htmlLang = langMap[lang] || "en"
 
   return (

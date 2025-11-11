@@ -128,8 +128,8 @@ export default function SVGConverterPage({ params }: PageProps) {
   }
 
   const copyLink = () => {
-    const currentUrl = typeof window !== "undefined" ? window.location.href : ""
-    if (currentUrl) {
+    if (typeof window !== "undefined") {
+      const currentUrl = window.location.href
       navigator.clipboard.writeText(currentUrl).then(() => {
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
