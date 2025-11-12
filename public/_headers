@@ -1,3 +1,40 @@
-/_next/static/*
-  Cache-Control: public,max-age=31536000,immutable
+/*
+  # 默认安全头部
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
 
+# 根路径 - 301 永久重定向到日语版本
+/
+  # SEO 优化：明确告诉搜索引擎这是永久重定向
+  Link: </ja>; rel="canonical"
+  X-Redirect-To: /ja
+  Cache-Control: public, max-age=31536000, immutable
+
+# 日语版本 - 缓存策略
+/ja/*
+  Cache-Control: public, max-age=3600, s-maxage=86400
+  Content-Language: ja-JP
+
+# 英语版本 - 缓存策略
+/en/*
+  Cache-Control: public, max-age=3600, s-maxage=86400
+  Content-Language: en-US
+
+# 中文版本 - 缓存策略
+/zh/*
+  Cache-Control: public, max-age=3600, s-maxage=86400
+  Content-Language: zh-Hans
+
+# API 路由 - 不缓存
+/api/*
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# 资源文件 - 长期缓存
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/_next/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -19,7 +19,15 @@ import type {
 // Configuration
 // ============================================================================
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api'
+// Use Next.js API routes by default (configured via NEXT_PUBLIC_API_BASE_URL)
+// Next.js API routes will proxy to VPS backend with R2 backup
+// Fallback to Worker URL only if env variable is not set
+const FALLBACK_WORKER_URL = 'https://svg-converter-worker.shendongloving123.workers.dev'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || FALLBACK_WORKER_URL
+
+// Upload endpoint (same as API_BASE_URL for consistency)
+const UPLOAD_API_URL = API_BASE_URL
+
 const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // 1 second
 const REQUEST_TIMEOUT = 30000 // 30 seconds
@@ -196,7 +204,12 @@ export async function uploadFile(
       reject(new APIError('REQUEST_CANCELLED', 'Upload was cancelled'))
     })
 
-    xhr.open('POST', `${API_BASE_URL}/upload`)
+    // 使用 Worker 上传端点（有完整的 Cloudflare 绑定）
+    // Fallback to Pages API if Worker URL not available
+    const uploadUrl = `${UPLOAD_API_URL}/upload`
+    console.log(`[Upload] Using endpoint: ${uploadUrl}`)
+    
+    xhr.open('POST', uploadUrl)
     xhr.send(formData)
   })
 }

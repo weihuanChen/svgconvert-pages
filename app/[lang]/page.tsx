@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label"
 import { useTheme } from "next-themes"
 import { getTranslation, type Locale, locales, defaultLocale } from "@/app/i18n"
 import { useRouter } from "next/navigation"
+import { useConversionStore } from "@/lib/stores/conversion-store"
+import { uploadFile, getTaskStatus, getDownloadUrl, downloadFile, getErrorMessage } from "@/lib/api-client"
 
 type FileStatus = "PENDING" | "CONVERTING" | "COMPLETED" | "ERROR"
 
@@ -22,6 +24,10 @@ interface UploadedFile {
   targetFormat: string
   status: FileStatus
   downloadUrl?: string
+  taskId?: string
+  file?: File
+  progress?: number
+  error?: string
 }
 
 interface PageProps {
@@ -39,6 +45,7 @@ export default function SVGConverterPage({ params }: PageProps) {
   const { theme, setTheme } = useTheme()
   const [copied, setCopied] = useState(false)
   const [lang, setLang] = useState<Locale>(defaultLocale)
+  const [isDownloading, setIsDownloading] = useState<Record<string, boolean>>({})
 
   // 使用 useMemo 避免在 useEffect 中处理 Promise
   const langPromise = useMemo(() => params, [params])
@@ -87,30 +94,182 @@ export default function SVGConverterPage({ params }: PageProps) {
       size: file.size,
       targetFormat: targetFormat,
       status: "PENDING" as FileStatus,
+      file: file, // Store the actual File object for upload
+      progress: 0,
     }))
 
     setFiles((prev) => [...prev, ...uploadedFiles])
   }
 
-  const startConversion = () => {
-    setFiles((prev) =>
-      prev.map((file) => (file.status === "PENDING" ? { ...file, status: "CONVERTING" as FileStatus } : file)),
-    )
+  const startConversion = async () => {
+    // Get all pending files
+    const pendingFiles = files.filter((f) => f.status === "PENDING")
 
-    // Simulate conversion
-    setTimeout(() => {
-      setFiles((prev) =>
-        prev.map((file) =>
-          file.status === "CONVERTING"
-            ? {
-                ...file,
-                status: "COMPLETED" as FileStatus,
-                downloadUrl: "#",
-              }
-            : file,
-        ),
-      )
-    }, 2000)
+    if (pendingFiles.length === 0) {
+      return
+    }
+
+    // Process each file
+    for (const uploadedFile of pendingFiles) {
+      if (!uploadedFile.file) {
+        console.error(`No file object for ${uploadedFile.id}`)
+        continue
+      }
+
+      try {
+        // Mark as converting
+        setFiles((prev) =>
+          prev.map((f) => (f.id === uploadedFile.id ? { ...f, status: "CONVERTING" as FileStatus, progress: 0 } : f)),
+        )
+
+        // Upload file with options
+        const response = await uploadFile(
+          uploadedFile.file,
+          {
+            targetFormat: uploadedFile.targetFormat.toLowerCase() as any,
+            quality: quality[0],
+            transparency: transparency,
+          },
+          (progress) => {
+            // Update progress
+            setFiles((prev) =>
+              prev.map((f) => (f.id === uploadedFile.id ? { ...f, progress } : f)),
+            )
+          },
+        )
+
+        if (response.success && response.taskId) {
+          // Store taskId and keep status as CONVERTING while waiting for backend processing
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === uploadedFile.id
+                ? {
+                    ...f,
+                    taskId: response.taskId,
+                    status: "CONVERTING" as FileStatus,
+                    progress: 50, // Upload complete, now processing
+                  }
+                : f,
+            ),
+          )
+
+          console.log(`[Upload Success] File: ${uploadedFile.name}, TaskId: ${response.taskId}`)
+
+          // Start polling for task completion
+          pollTaskCompletion(uploadedFile.id, response.taskId)
+        } else {
+          throw new Error(response.error?.message || "Upload failed")
+        }
+      } catch (error) {
+        console.error(`[Upload Error] File: ${uploadedFile.name}`, error)
+        const errorMsg = getErrorMessage(error, lang === "ja" ? "ja" : lang === "zh" ? "zh" : "en")
+
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === uploadedFile.id
+              ? {
+                  ...f,
+                  status: "ERROR" as FileStatus,
+                  error: errorMsg,
+                }
+              : f,
+          ),
+        )
+      }
+    }
+  }
+
+  const pollTaskCompletion = async (fileId: string, taskId: string) => {
+    const maxAttempts = 60 // 最多轮询 60 次（2 分钟，每 2 秒一次）
+    let attempts = 0
+
+    const poll = async () => {
+      try {
+        attempts++
+        // Use api-client's getTaskStatus function instead of hardcoded URL
+        const data = await getTaskStatus(taskId)
+
+        // 添加详细日志以诊断响应格式问题
+        console.log(`[Poll] Attempt ${attempts} - Response:`, JSON.stringify(data, null, 2))
+
+        if (data.success && data.task) {
+          const taskStatus = data.task.status.toLowerCase()
+          console.log(`[Poll] Task status: ${taskStatus}`)
+
+          if (taskStatus === "completed") {
+            // 转换完成
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === fileId
+                  ? {
+                      ...f,
+                      status: "COMPLETED" as FileStatus,
+                      progress: 100,
+                    }
+                  : f,
+              ),
+            )
+            console.log(`[Conversion Complete] TaskId: ${taskId}`)
+            return
+          } else if (taskStatus === "failed") {
+            // 转换失败
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === fileId
+                  ? {
+                      ...f,
+                      status: "ERROR" as FileStatus,
+                      error: data.task.error || "Conversion failed",
+                    }
+                  : f,
+              ),
+            )
+            console.error(`[Conversion Failed] TaskId: ${taskId}`, data.task.error)
+            return
+          } else if (taskStatus === "processing") {
+            // 正在处理中，更新进度
+            setFiles((prev) =>
+              prev.map((f) =>
+                f.id === fileId
+                  ? {
+                      ...f,
+                      progress: 75, // 处理中
+                    }
+                  : f,
+              ),
+            )
+          }
+        }
+
+        // 如果还没完成且未超过最大尝试次数，继续轮询
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 2000) // 2 秒后再次检查
+        } else {
+          // 超时
+          setFiles((prev) =>
+            prev.map((f) =>
+              f.id === fileId
+                ? {
+                    ...f,
+                    status: "ERROR" as FileStatus,
+                    error: "Conversion timeout - please try again",
+                  }
+                : f,
+            ),
+          )
+          console.error(`[Conversion Timeout] TaskId: ${taskId}`)
+        }
+      } catch (error) {
+        console.error(`[Polling Error] TaskId: ${taskId}`, error)
+        // 继续轮询，除非超过最大尝试次数
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 2000)
+        }
+      }
+    }
+
+    // 开始轮询
+    poll()
   }
 
   const cancelAll = () => {
@@ -119,6 +278,39 @@ export default function SVGConverterPage({ params }: PageProps) {
 
   const removeFile = (id: string) => {
     setFiles((prev) => prev.filter((file) => file.id !== id))
+  }
+
+  const handleDownload = async (fileId: string) => {
+    setIsDownloading((prev) => ({ ...prev, [fileId]: true }))
+
+    try {
+      const file = files.find((f) => f.id === fileId)
+      if (!file) {
+        alert("文件不存在")
+        return
+      }
+
+      if (!file.taskId) {
+        alert("任务ID不存在，无法下载")
+        return
+      }
+
+      // 获取下载URL - Use taskId instead of fileId
+      const response = await getDownloadUrl(file.taskId)
+
+      if (!response.success || !response.downloadUrl) {
+        throw new Error("无法获取下载链接")
+      }
+
+      // 触发下载
+      await downloadFile(response.downloadUrl, response.fileName || file.name)
+    } catch (error) {
+      const errorMsg = getErrorMessage(error, lang === "ja" ? "ja" : lang === "zh" ? "zh" : "en")
+      alert(`下载失败: ${errorMsg}`)
+      console.error("Download error:", error)
+    } finally {
+      setIsDownloading((prev) => ({ ...prev, [fileId]: false }))
+    }
   }
 
   const formatFileSize = (bytes: number) => {
@@ -331,10 +523,12 @@ export default function SVGConverterPage({ params }: PageProps) {
                       {file.status === "COMPLETED" && (
                         <Button
                           size="sm"
-                          className="bg-lime-500 hover:bg-lime-600 text-black border-2 border-black font-bold shadow-[2px_2px_0_0_#000]"
+                          onClick={() => handleDownload(file.id)}
+                          disabled={isDownloading[file.id]}
+                          className="bg-lime-500 hover:bg-lime-600 text-black border-2 border-black font-bold shadow-[2px_2px_0_0_#000] disabled:opacity-50"
                         >
                           <Download className="h-4 w-4 mr-1" />
-                          {t.download}
+                          {isDownloading[file.id] ? "下载中..." : t.download}
                         </Button>
                       )}
                     </div>

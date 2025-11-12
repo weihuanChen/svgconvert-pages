@@ -1,10 +1,12 @@
 /**
  * POST /api/upload
  *
- * Handles file upload, stores in R2, creates task metadata in D1/KV,
- * and pushes task to Cloudflare Queue.
+ * Proxies file upload to VPS backend (primary) and optionally backs up to R2.
+ * This implements a hybrid architecture:
+ * 1. Upload to VPS backend (https://svgconvert-server.zeabur.app)
+ * 2. Optionally backup to R2 (if Cloudflare bindings available)
  *
- * This is a Next.js API route that will be deployed to Cloudflare Pages.
+ * This is a Next.js API route that can run on Node.js or Edge runtime.
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -12,20 +14,22 @@ import type {
   UploadResponse,
   ErrorResponse,
   ConversionOptions,
-  TaskMetadata,
-  QueueMessage,
   CloudflareEnv
 } from '@/types/cloudflare'
-import { generateTaskId, generateR2Key, getMimeType } from '@/types/cloudflare'
+import { generateR2Key, getMimeType } from '@/types/cloudflare'
 
-// Edge runtime for Cloudflare Pages
-export const runtime = 'edge'
+// Use Node.js runtime for better compatibility with fetch and FormData
+export const runtime = 'nodejs'
 
 // Maximum file size: 20MB
 const MAX_FILE_SIZE = 20 * 1024 * 1024
 
+// VPS Backend URL from environment variable
+const VPS_BACKEND_URL = process.env.VPS_BACKEND_URL || 'https://svgconvert-server.zeabur.app'
+const ENABLE_R2_BACKUP = process.env.ENABLE_R2_BACKUP === 'true'
+
 /**
- * POST handler for file upload
+ * POST handler for file upload - Proxies to VPS backend
  */
 export async function POST(request: NextRequest): Promise<NextResponse<UploadResponse | ErrorResponse>> {
   try {
@@ -93,93 +97,130 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
       )
     }
 
-    // Generate task ID and file keys
-    const taskId = generateTaskId()
-    const sourceFileKey = generateR2Key(taskId, fileName, 'source')
-    const sourceFormat = fileName.split('.').pop()?.toLowerCase() as string
+    console.log(`[Upload] Proxying to VPS backend: ${VPS_BACKEND_URL}/api/upload`)
 
-    // TODO: In production, access Cloudflare bindings from context
-    // const env = context.cloudflare.env as CloudflareEnv
-    // For now, we'll simulate the response
+    // Create FormData for VPS backend (matches VPS API format)
+    const vpsFormData = new FormData()
+    vpsFormData.append('file', file)
+    vpsFormData.append('outputFormat', options.targetFormat)
 
-    // Convert File to ArrayBuffer
-    const fileBuffer = await file.arrayBuffer()
-
-    // TODO: Upload to R2
-    // await env.SVG_CONVERTER_BUCKET.put(sourceFileKey, fileBuffer, {
-    //   httpMetadata: {
-    //     contentType: file.type || getMimeType(sourceFormat as any),
-    //     contentDisposition: `attachment; filename="${fileName}"`
-    //   },
-    //   customMetadata: {
-    //     taskId,
-    //     originalFileName: fileName
-    //   }
-    // })
-
-    // Create task metadata
-    const taskMetadata: TaskMetadata = {
-      taskId,
-      originalFileName: fileName,
-      sourceFormat: sourceFormat as any,
-      targetFormat: options.targetFormat,
-      sourceFileKey,
-      status: 'PENDING',
-      options,
-      createdAt: new Date().toISOString(),
-      sourceFileSize: file.size
+    // Add optional parameters
+    if (options.width) vpsFormData.append('width', options.width.toString())
+    if (options.height) vpsFormData.append('height', options.height.toString())
+    if (options.quality) vpsFormData.append('quality', options.quality.toString())
+    if (options.backgroundColor) vpsFormData.append('backgroundColor', options.backgroundColor)
+    if (options.maintainAspectRatio !== undefined) {
+      vpsFormData.append('maintainAspectRatio', options.maintainAspectRatio.toString())
     }
 
-    // TODO: Store task metadata in D1/KV
-    // await env.SVG_CONVERTER_KV.put(
-    //   `task:${taskId}`,
-    //   JSON.stringify(taskMetadata),
-    //   { expirationTtl: 3600 } // 1 hour TTL
-    // )
+    // Get language from request headers
+    const acceptLanguage = request.headers.get('Accept-Language') || 'en'
 
-    // Create queue message
-    const queueMessage: QueueMessage = {
-      taskId,
-      bucketName: 'svg-converter', // TODO: Get from env
-      sourceFileKey,
-      fileName,
-      sourceFormat: sourceFormat as any,
-      options,
-      callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin}/api/callback`,
-      callbackToken: process.env.VPS_CALLBACK_SECRET || 'dev-secret'
-    }
-
-    // TODO: Push to Cloudflare Queue
-    // await env.SVG_CONVERTER_QUEUE.send(queueMessage)
-
-    // Simulate task creation for development
-    console.log('[SIMULATED] Task created:', {
-      taskId,
-      fileName,
-      sourceFormat,
-      targetFormat: options.targetFormat
+    // Forward to VPS backend
+    const vpsResponse = await fetch(`${VPS_BACKEND_URL}/api/upload`, {
+      method: 'POST',
+      body: vpsFormData,
+      headers: {
+        'Accept-Language': acceptLanguage
+      }
     })
 
-    // Return success response
+    if (!vpsResponse.ok) {
+      const errorText = await vpsResponse.text()
+      console.error(`[Upload] VPS backend error (${vpsResponse.status}):`, errorText)
+
+      let errorData: any
+      try {
+        errorData = JSON.parse(errorText)
+      } catch {
+        errorData = { error: errorText, message: 'VPS backend error' }
+      }
+
+      return NextResponse.json<ErrorResponse>(
+        {
+          success: false,
+          error: {
+            code: errorData.error || 'VPS_ERROR',
+            message: errorData.message || 'VPS backend returned an error',
+            details: process.env.NODE_ENV === 'development' ? errorData : undefined
+          }
+        },
+        { status: vpsResponse.status }
+      )
+    }
+
+    // Parse VPS response
+    const vpsData = await vpsResponse.json()
+    const taskId = vpsData.taskId
+
+    // Validate that VPS returned a valid taskId
+    if (!taskId) {
+      console.error(`[Upload] ❌ VPS did not return taskId. Response:`, vpsData)
+      return NextResponse.json<ErrorResponse>(
+        {
+          success: false,
+          error: {
+            code: 'INVALID_VPS_RESPONSE',
+            message: 'VPS backend did not return a valid task ID',
+            details: process.env.NODE_ENV === 'development' ? vpsData : undefined
+          }
+        },
+        { status: 500 }
+      )
+    }
+
+    console.log(`[Upload] ✅ VPS upload successful. TaskId: ${taskId}`)
+    console.log(`[Upload] VPS response data:`, vpsData)
+
+    // Optional: Backup to R2 if enabled and bindings available
+    if (ENABLE_R2_BACKUP) {
+      const env = (request as any).cloudflare?.env as CloudflareEnv | undefined
+      if (env?.SVG_CONVERTER_BUCKET) {
+        try {
+          const sourceFormat = fileName.split('.').pop()?.toLowerCase() as string
+          const sourceFileKey = generateR2Key(taskId, fileName, 'source')
+          const fileBuffer = await file.arrayBuffer()
+
+          await env.SVG_CONVERTER_BUCKET.put(sourceFileKey, fileBuffer, {
+            httpMetadata: {
+              contentType: file.type || getMimeType(sourceFormat as any),
+              contentDisposition: `attachment; filename="${fileName}"`
+            },
+            customMetadata: {
+              taskId,
+              originalFileName: fileName,
+              uploadedAt: new Date().toISOString(),
+              backupSource: 'vps'
+            }
+          })
+          console.log(`[Upload] ✅ R2 backup successful: ${sourceFileKey}`)
+        } catch (error) {
+          console.error(`[Upload] ⚠️  R2 backup failed (non-critical):`, error)
+          // Don't fail the request - backup is optional
+        }
+      }
+    }
+
+    // Return VPS response to client
     return NextResponse.json<UploadResponse>(
       {
         success: true,
         taskId,
-        message: 'File uploaded successfully and task created'
+        message: vpsData.message || 'File uploaded successfully'
       },
-      { status: 201 }
+      { status: vpsResponse.status }
     )
 
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('[Upload] Proxy error:', error)
 
     return NextResponse.json<ErrorResponse>(
       {
         success: false,
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An error occurred during upload',
-          details: process.env.NODE_ENV === 'development' ? error : undefined
+          code: 'PROXY_ERROR',
+          message: 'Failed to proxy upload to VPS backend',
+          details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
         }
       },
       { status: 500 }

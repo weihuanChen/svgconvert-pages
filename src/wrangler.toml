@@ -1,0 +1,37 @@
+# Wrangler configuration for SVG Converter Worker
+name = "svg-converter-worker"
+main = "worker.ts"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat"]
+
+# R2 Bucket binding
+[[r2_buckets]]
+binding = "SVG_CONVERTER_BUCKET"
+bucket_name = "svgconvert-net"
+
+# KV Namespace binding
+[[kv_namespaces]]
+binding = "SVG_CONVERTER_KV"
+id = "d6f9b75693384b869b13edae0a84f485"  # Production KV Namespace
+
+# Queue binding - Producer
+[[queues.producers]]
+binding = "SVG_CONVERTER_QUEUE"
+queue = "svg-conversion-queue-v2"
+
+# Queue binding - Consumer
+[[queues.consumers]]
+queue = "svg-conversion-queue-v2"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+dead_letter_queue = "svg-converter-dlq"
+
+# Environment variables
+[vars]
+ENVIRONMENT = "production"
+R2_PUBLIC_URL = "https://pub-62d5cc9053a54840a2075d357d13940e.r2.dev"
+MAX_FILE_SIZE = "20971520"  # 20MB
+FILE_RETENTION_MINUTES = "1440"  # 24 hours
+VPS_CONVERSION_URL = "https://svgconvert-server.zeabur.app/api/convert"
+VPS_CALLBACK_SECRET = "1NDcniODmC1B809cLqhs+K59dafDR4gNZpyPvBUMWYs="
