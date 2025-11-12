@@ -23,16 +23,16 @@ export enum TaskStatus {
 /**
  * Supported file formats for conversion
  */
-export type FileFormat = 'svg' | 'png' | 'jpg' | 'jpeg' | 'pdf' | 'eps'
+export type FileFormat = 'svg' | 'png' | 'jpg' | 'jpeg' | 'webp' | 'gif' | 'pdf'
 
 /**
  * Conversion direction
  */
 export type ConversionDirection =
-  | 'svg-to-raster'  // SVG → PNG/JPG
-  | 'svg-to-vector'  // SVG → PDF/EPS
-  | 'raster-to-svg'  // PNG/JPG → SVG
-  | 'vector-to-svg'  // PDF/EPS → SVG
+  | 'svg-to-raster'  // SVG → PNG/JPG/WebP/GIF
+  | 'svg-to-vector'  // SVG → PDF
+  | 'raster-to-svg'  // PNG/JPG/WebP/GIF → SVG
+  | 'vector-to-svg'  // PDF → SVG
 
 // ============================================================================
 // Conversion Parameters
@@ -53,10 +53,10 @@ export interface BaseConversionOptions {
 }
 
 /**
- * Options for SVG to raster (PNG/JPG) conversion
+ * Options for SVG to raster (PNG/JPG/WebP/GIF) conversion
  */
 export interface SVGToRasterOptions extends BaseConversionOptions {
-  targetFormat: 'png' | 'jpg' | 'jpeg'
+  targetFormat: 'png' | 'jpg' | 'jpeg' | 'webp' | 'gif'
 
   /** Output width in pixels */
   width?: number
@@ -91,10 +91,10 @@ export interface RasterToSVGOptions extends BaseConversionOptions {
 }
 
 /**
- * Options for vector format conversions (SVG ↔ PDF/EPS)
+ * Options for vector format conversions (SVG ↔ PDF)
  */
 export interface VectorConversionOptions extends BaseConversionOptions {
-  targetFormat: 'pdf' | 'eps' | 'svg'
+  targetFormat: 'pdf' | 'svg'
 
   /** Page size for PDF output */
   pageSize?: 'A4' | 'Letter' | 'Custom'
@@ -474,15 +474,15 @@ export interface Queue {
 /**
  * Type guard to check if a format is a raster format
  */
-export function isRasterFormat(format: FileFormat): format is 'png' | 'jpg' | 'jpeg' {
-  return ['png', 'jpg', 'jpeg'].includes(format)
+export function isRasterFormat(format: FileFormat): format is 'png' | 'jpg' | 'jpeg' | 'webp' | 'gif' {
+  return ['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(format)
 }
 
 /**
  * Type guard to check if a format is a vector format
  */
-export function isVectorFormat(format: FileFormat): format is 'svg' | 'pdf' | 'eps' {
-  return ['svg', 'pdf', 'eps'].includes(format)
+export function isVectorFormat(format: FileFormat): format is 'svg' | 'pdf' {
+  return ['svg', 'pdf'].includes(format)
 }
 
 /**
@@ -494,8 +494,9 @@ export function getMimeType(format: FileFormat): string {
     png: 'image/png',
     jpg: 'image/jpeg',
     jpeg: 'image/jpeg',
-    pdf: 'application/pdf',
-    eps: 'application/postscript'
+    webp: 'image/webp',
+    gif: 'image/gif',
+    pdf: 'application/pdf'
   }
   return mimeTypes[format]
 }

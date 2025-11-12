@@ -65,8 +65,10 @@ export async function GET(
           targetFormat = 'pdf'
         } else if (vpsContentType.includes('svg')) {
           targetFormat = 'svg'
-        } else if (vpsContentType.includes('postscript') || vpsContentType.includes('eps')) {
-          targetFormat = 'eps'
+        } else if (vpsContentType.includes('webp')) {
+          targetFormat = 'webp'
+        } else if (vpsContentType.includes('gif')) {
+          targetFormat = 'gif'
         }
       }
 
@@ -94,9 +96,10 @@ export async function GET(
         'jpg': 'image/jpeg',
         'jpeg': 'image/jpeg',
         'png': 'image/png',
+        'webp': 'image/webp',
+        'gif': 'image/gif',
         'pdf': 'application/pdf',
-        'svg': 'image/svg+xml',
-        'eps': 'application/postscript'
+        'svg': 'image/svg+xml'
       }
       detectedContentType = contentTypeMap[targetFormat] || 'application/octet-stream'
 
@@ -198,6 +201,19 @@ function detectFileFormat(buffer: ArrayBuffer): string | null {
     return 'jpg'
   }
 
+  // GIF: 47 49 46 (GIF)
+  if (view[0] === 0x47 && view[1] === 0x49 && view[2] === 0x46) {
+    return 'gif'
+  }
+
+  // WebP: 52 49 46 46 ... 57 45 42 50 (RIFF...WEBP)
+  if (view[0] === 0x52 && view[1] === 0x49 && view[2] === 0x46 && view[3] === 0x46) {
+    const webpSignature = new TextDecoder().decode(view.slice(8, 12))
+    if (webpSignature === 'WEBP') {
+      return 'webp'
+    }
+  }
+
   // PDF: 25 50 44 46 (% P D F)
   if (view[0] === 0x25 && view[1] === 0x50 && view[2] === 0x44 && view[3] === 0x46) {
     return 'pdf'
@@ -207,14 +223,6 @@ function detectFileFormat(buffer: ArrayBuffer): string | null {
   const text = new TextDecoder().decode(view.slice(0, Math.min(100, view.length)))
   if (text.includes('<?xml') || text.includes('<svg')) {
     return 'svg'
-  }
-
-  // EPS: %!PS-Adobe
-  if (view[0] === 0x25 && view[1] === 0x21) {
-    const text = new TextDecoder().decode(view.slice(0, Math.min(20, view.length)))
-    if (text.includes('PS-Adobe')) {
-      return 'eps'
-    }
   }
 
   return null
@@ -228,9 +236,10 @@ function getContentType(format: string): string {
     'png': 'image/png',
     'jpg': 'image/jpeg',
     'jpeg': 'image/jpeg',
+    'webp': 'image/webp',
+    'gif': 'image/gif',
     'pdf': 'application/pdf',
-    'svg': 'image/svg+xml',
-    'eps': 'application/postscript'
+    'svg': 'image/svg+xml'
   }
 
   return contentTypes[format.toLowerCase()] || 'application/octet-stream'

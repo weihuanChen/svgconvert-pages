@@ -556,8 +556,9 @@ export default function SVGConverterPage({ params }: PageProps) {
                       <SelectContent className="border-4 border-black dark:border-white bg-white dark:bg-gray-800">
                         <SelectItem value="PNG">PNG</SelectItem>
                         <SelectItem value="JPG">JPG</SelectItem>
+                        <SelectItem value="WEBP">WebP</SelectItem>
+                        <SelectItem value="GIF">GIF</SelectItem>
                         <SelectItem value="PDF">PDF</SelectItem>
-                        <SelectItem value="EPS">EPS</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
