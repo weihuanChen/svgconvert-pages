@@ -98,6 +98,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadRes
     }
 
     console.log(`[Upload] Proxying to VPS backend: ${VPS_BACKEND_URL}/api/upload`)
+    console.log(`[Upload] Frontend options:`, JSON.stringify(options))
 
     // Create FormData for VPS backend (matches VPS API format)
     const vpsFormData = new FormData()

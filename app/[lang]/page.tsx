@@ -123,10 +123,11 @@ export default function SVGConverterPage({ params }: PageProps) {
         )
 
         // Upload file with options
+        // Use current targetFormat state instead of saved value, so user can change format after uploading
         const response = await uploadFile(
           uploadedFile.file,
           {
-            targetFormat: uploadedFile.targetFormat.toLowerCase() as any,
+            targetFormat: targetFormat.toLowerCase() as any,
             quality: quality[0],
             transparency: transparency,
           },
