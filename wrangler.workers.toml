@@ -76,10 +76,8 @@ dead_letter_queue = "svg-converter-dlq"
 
 [vars]
 R2_PUBLIC_URL = "https://pub-62d5cc9053a54840a2075d357d13940e.r2.dev"
-VPS_CONVERSION_URL = "https://svgconvert-server.zeabur.app/api/convert"
 MAX_FILE_SIZE = "20971520"  # 20MB
 FILE_RETENTION_MINUTES = "30"
-R2_ACCOUNT_ID = "916a9ebd0967327020ed90ad654875f6"
 ENVIRONMENT = "production"
 
 # ============================================================================
