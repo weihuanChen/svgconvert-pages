@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Inter, Roboto_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { LanguageSetter } from "@/components/language-setter"
+import { Header } from "@/components/Header"
 import { locales, type Locale } from "@/app/i18n"
 import "../globals.css"
 
@@ -100,6 +101,7 @@ export default async function LangLayout({
     <div className={`${inter.variable} ${robotoMono.variable} font-sans antialiased`}>
       <LanguageSetter lang={lang} />
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <Header lang={lang} />
         {children}
       </ThemeProvider>
       <Analytics />

@@ -2,16 +2,14 @@
 
 import type React from "react"
 import { useState, useEffect, useMemo } from "react"
-import { Upload, Sun, Moon, Share2, Download, X, SettingsIcon } from "lucide-react"
+import { Upload, Download, X, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { useTheme } from "next-themes"
 import { getTranslation, type Locale, locales, defaultLocale } from "@/app/i18n"
-import { useRouter } from "next/navigation"
 import { useConversionStore } from "@/lib/stores/conversion-store"
 import { uploadFile, getTaskStatus, getDownloadUrl, downloadFile, getErrorMessage } from "@/lib/api-client"
 
@@ -35,15 +33,12 @@ interface PageProps {
 }
 
 export default function SVGConverterPage({ params }: PageProps) {
-  const router = useRouter()
   const [isDragging, setIsDragging] = useState(false)
   const [files, setFiles] = useState<UploadedFile[]>([])
   const [targetFormat, setTargetFormat] = useState("PNG")
   const [quality, setQuality] = useState([80])
   const [transparency, setTransparency] = useState(true)
   const [batchProcess, setBatchProcess] = useState(false)
-  const { theme, setTheme } = useTheme()
-  const [copied, setCopied] = useState(false)
   const [lang, setLang] = useState<Locale>(defaultLocale)
   const [isDownloading, setIsDownloading] = useState<Record<string, boolean>>({})
 
@@ -320,69 +315,8 @@ export default function SVGConverterPage({ params }: PageProps) {
     return (bytes / (1024 * 1024)).toFixed(2) + " MB"
   }
 
-  const copyLink = () => {
-    if (typeof window !== "undefined") {
-      const currentUrl = window.location.href
-      navigator.clipboard.writeText(currentUrl).then(() => {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      })
-    }
-  }
-
-  const handleLanguageChange = (newLang: string) => {
-    if (locales.includes(newLang as Locale)) {
-      router.push(`/${newLang}`)
-    }
-  }
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors">
-      {/* Header */}
-      <header className="border-b-4 border-black dark:border-white bg-white dark:bg-gray-950">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <h1 className="text-2xl md:text-3xl font-bold font-mono text-black dark:text-white">SVG CONVERTER</h1>
-
-            <div className="flex items-center gap-3">
-              <Select value={lang} onValueChange={handleLanguageChange}>
-                <SelectTrigger className="w-20 border-4 border-black dark:border-white bg-white dark:bg-gray-800 text-black dark:text-white font-mono font-bold shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="border-4 border-black dark:border-white bg-white dark:bg-gray-800">
-                  <SelectItem value="ja">JA</SelectItem>
-                  <SelectItem value="en">EN</SelectItem>
-                  <SelectItem value="zh">ZH</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="border-4 border-black dark:border-white bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]"
-              >
-                {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
-
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={copyLink}
-                className="border-4 border-black dark:border-white bg-white dark:bg-gray-800 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] relative"
-                title={t.shareLink}
-              >
-                <Share2 className="h-5 w-5" />
-                {copied && (
-                  <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs font-mono bg-lime-500 dark:bg-lime-500 text-black px-2 py-1 border-2 border-black dark:border-white whitespace-nowrap shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]">
-                    {t.linkCopied}
-                  </span>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
