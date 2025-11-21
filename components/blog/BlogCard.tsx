@@ -21,7 +21,7 @@ export function BlogCard({ post, lang }: BlogCardProps) {
   return (
     <Link
       href={`/${lang}/blog/${post.slug}`}
-      className="group block border-4 border-black dark:border-white bg-white dark:bg-black p-6 transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]"
+      className="blog-card-hover group block border-4 border-black dark:border-white bg-white dark:bg-black p-6 shadow-none hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]"
     >
       {/* 标题 */}
       <h2 className="text-2xl font-bold mb-3 group-hover:text-lime-500 transition-colors">

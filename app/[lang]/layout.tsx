@@ -1,17 +1,12 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono, Inter, Roboto_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { LanguageSetter } from "@/components/language-setter"
 import { Header } from "@/components/Header"
 import { locales, type Locale } from "@/app/i18n"
+import { getSeoContent } from "@/lib/seo"
 import "../globals.css"
-
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
-const robotoMono = Roboto_Mono({ subsets: ["latin"], variable: "--font-roboto-mono" })
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({ lang: locale }))
@@ -31,32 +26,18 @@ export async function generateMetadata({
     ? paramLang
     : "en") as Locale
 
-  const langNames: Record<Locale, string> = {
-    ja: "日本語",
-    en: "English",
-    zh: "中文"
-  }
-
-  const descriptions: Record<Locale, string> = {
-    ja: "高速で無料のSVG変換ツール。CloudflareとVPSで駆動。",
-    en: "Fast, Free SVG Conversion Tool powered by Cloudflare and VPS.",
-    zh: "快速、免费的SVG转换工具。由Cloudflare和VPS驱动。"
-  }
-
   const baseUrl = "https://svgconvert.net"
+  const seoCopy = getSeoContent(lang)
+  const ogLocaleMap: Record<Locale, string> = {
+    ja: "ja_JP",
+    en: "en_US",
+    zh: "zh_Hans",
+  }
 
   return {
-    title: `SVG Converter - ${langNames[lang]}`,
-    description: descriptions[lang],
-    keywords: [
-      "SVG converter",
-      "image conversion",
-      "PNG",
-      "JPG",
-      "PDF",
-      lang === "ja" ? "SVG変換" : "",
-      lang === "zh" ? "SVG转换" : ""
-    ].filter(Boolean),
+    title: seoCopy.pageTitle,
+    description: seoCopy.metaDescription,
+    keywords: seoCopy.keywords,
     alternates: {
       canonical: `${baseUrl}/${lang}`,
       languages: Object.fromEntries(
@@ -67,15 +48,21 @@ export async function generateMetadata({
       )
     },
     openGraph: {
-      title: `SVG Converter - ${langNames[lang]}`,
-      description: descriptions[lang],
+      title: seoCopy.pageTitle,
+      description: seoCopy.metaDescription,
       url: `${baseUrl}/${lang}`,
       type: "website",
-      locale: lang === "zh" ? "zh_Hans" : `${lang}-JP`,
+      siteName: "SVG Converter",
+      locale: ogLocaleMap[lang],
       alternateLocale: locales
         .filter((l) => l !== lang)
-        .map((l) => (l === "zh" ? "zh_Hans" : `${l}-JP`))
-    }
+        .map((l) => ogLocaleMap[l]),
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seoCopy.pageTitle,
+      description: seoCopy.metaDescription,
+    },
   }
 }
 
@@ -98,7 +85,7 @@ export default async function LangLayout({
   const lang = (paramLang && locales.includes(paramLang as Locale) ? paramLang : "en") as Locale
 
   return (
-    <div className={`${inter.variable} ${robotoMono.variable} font-sans antialiased`}>
+    <div className="font-sans antialiased">
       <LanguageSetter lang={lang} />
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
         <Header lang={lang} />

@@ -2,13 +2,14 @@ import { getPostBySlugFromCMS, getAllPostSlugsFromCMS } from '@/lib/blog'
 import { type Locale } from '@/lib/types'
 import { notFound } from 'next/navigation'
 import { TableOfContents } from '@/components/blog/TableOfContents'
+import { MarkdownContent } from '@/components/blog/MarkdownContent'
 import { Calendar, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 import { ja, enUS, zhCN } from 'date-fns/locale'
 import Link from 'next/link'
-import Streamdown from 'streamdown'
 
 export const revalidate = 43200 // 12 小时
+export const dynamicParams = true // 允许动态参数
 
 const localeMap = {
   ja,
@@ -21,8 +22,21 @@ interface BlogPostPageProps {
 }
 
 export async function generateStaticParams() {
-  const slugs = await getAllPostSlugsFromCMS()
-  return slugs.map((slug) => ({ slug }))
+  try {
+    const slugs = await getAllPostSlugsFromCMS()
+    const locales: Locale[] = ['ja', 'en', 'zh']
+
+    // 为每个 locale 和 slug 的组合生成参数
+    const params = locales.flatMap((lang) =>
+      slugs.map((slug) => ({ lang, slug }))
+    )
+
+    return params
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error)
+    // 如果获取失败，返回空数组，允许动态渲染
+    return []
+  }
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps) {
@@ -58,6 +72,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     notFound()
   }
 
+  // 确保日期有效
+  const postDate = post.date ? new Date(post.date) : new Date()
   const dateLocale = localeMap[post.locale] || ja
 
   return (
@@ -84,13 +100,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <div className="flex flex-wrap items-center gap-4 text-sm text-foreground/60">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    <time dateTime={post.date}>
-                      {format(new Date(post.date), 'PPP', { locale: dateLocale })}
+                    <time dateTime={post.date || ''}>
+                      {format(postDate, 'PPP', { locale: dateLocale })}
                     </time>
                   </div>
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4" />
-                    <span>{post.readingTime} min read</span>
+                    <span>{post.readingTime || 1} min read</span>
                   </div>
                 </div>
 
@@ -116,7 +132,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
               {/* 文章内容 */}
               <div className="prose prose-lg max-w-none p-8 border-4 border-black dark:border-white bg-white dark:bg-black blog-content">
-                <Streamdown content={post.content} />
+                <MarkdownContent content={post.content} />
               </div>
             </article>
 

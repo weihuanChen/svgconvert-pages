@@ -25,7 +25,9 @@
         "MAX_FILE_SIZE": "20971520",
         "FILE_RETENTION_MINUTES": "30",
         "NEXT_PUBLIC_API_BASE_URL": "https://svgconvert-server.zeabur.app/api",
-        "NEXT_PUBLIC_APP_URL": "https://svgconvert-server.zeabur.app"
+        "NEXT_PUBLIC_APP_URL": "https://svgconvert-server.zeabur.app",
+        "DIRECTUS_URL": "https://directus.lzyinglian.com/",
+        "NEXT_PUBLIC_SITE_ID": 5
       }
     },
     "preview": {
@@ -35,7 +37,9 @@
         "MAX_FILE_SIZE": "20971520",
         "FILE_RETENTION_MINUTES": "30",
         "NEXT_PUBLIC_API_BASE_URL": "https://svgconvert-server.zeabur.app/api",
-        "NEXT_PUBLIC_APP_URL": "https://svgconvert-server.zeabur.app"
+        "NEXT_PUBLIC_APP_URL": "https://svgconvert-server.zeabur.app",
+        "DIRECTUS_URL": "https://directus.lzyinglian.com/",
+        "NEXT_PUBLIC_SITE_ID": 5
       }
     }
   }

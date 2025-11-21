@@ -1,8 +1,13 @@
 import type { MetadataRoute } from 'next'
+import { getAllPostSlugsFromCMS } from '@/lib/blog'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://svgconvert.net'
   const languages = ['ja', 'en', 'zh'] as const
+  const blogLanguages = ['ja'] as const
+
+  // 获取所有博客文章的 slug
+  const blogSlugs = await getAllPostSlugsFromCMS()
 
   return [
     // 根 URL - 重定向到日语，设置较低优先级
@@ -33,7 +38,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.6,
         lastModified: new Date()
       }
-    ])
+    ]),
+    // Blog 文章页面
+    ...blogSlugs.flatMap((slug) =>
+      blogLanguages.map((lang) => ({
+        url: `${baseUrl}/${lang}/blog/${slug}`,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+        lastModified: new Date()
+      }))
+    )
   ]
 }
-

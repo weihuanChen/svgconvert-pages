@@ -1,11 +1,36 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { defaultLocale } from "@/app/i18n"
+import { getSeoContent } from "@/lib/seo"
 import "./globals.css"
 
+const seo = getSeoContent(defaultLocale)
+const siteUrl = "https://svgconvert.net"
+
 export const metadata: Metadata = {
-  title: "SVG Converter - Neo-Brutalism Design",
-  description: "Fast, Free SVG Conversion Tool with Cloudflare",
-  generator: "v0.app",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: seo.pageTitle,
+    template: "%s | SVG Converter",
+  },
+  description: seo.metaDescription,
+  keywords: seo.keywords,
+  generator: "Next.js",
+  alternates: {
+    canonical: siteUrl,
+  },
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    siteName: "SVG Converter",
+    title: seo.pageTitle,
+    description: seo.metaDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: seo.pageTitle,
+    description: seo.metaDescription,
+  },
   icons: {
     icon: [
       {

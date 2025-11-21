@@ -1,4 +1,4 @@
-import { readItems, aggregate } from '@directus/sdk'
+import { readItems } from '@directus/sdk'
 import { directus, SITE_ID, type DirectusPost, type PostTranslation, type Tag, type TagTranslation } from './directus'
 import { type BlogPost, type Locale, type TagInfo, type BlogListResponse } from './types'
 
@@ -107,23 +107,21 @@ export async function getAllPostsFromCMS(
   try {
     const offset = (page - 1) * limit
 
-    // 获取文章总数
-    const [countResult] = await directus.request(
-      aggregate('posts', {
-        aggregate: { count: '*' },
-        query: {
-          filter: {
-            status: { _eq: 'published' },
-            site_id: { _eq: SITE_ID },
-          },
+    // 获取所有文章 ID 以计算总数
+    const allPosts = await directus.request(
+      readItems('posts', {
+        filter: {
+          status: { _eq: 'published' },
+          site_id: { _eq: SITE_ID },
         },
+        fields: ['id'],
       })
     )
 
-    const totalPosts = Number(countResult.count) || 0
+    const totalPosts = Array.isArray(allPosts) ? allPosts.length : 0
     const totalPages = Math.ceil(totalPosts / limit)
 
-    // 获取文章列表
+    // 获取当前页的文章列表
     const posts = await directus.request(
       readItems('posts', {
         filter: {
