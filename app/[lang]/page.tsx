@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useMemo } from "react"
+import Link from "next/link"
 import { Upload, Download, X, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -405,7 +406,7 @@ export default function SVGConverterPage({ params }: PageProps) {
                   <AccordionItem
                     key={idx}
                     value={`item-${idx}`}
-                    className="border-4 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] bg-white dark:bg-gray-800 px-6"
+                    className="border-4 border-black dark:border-white shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] bg-white dark:bg-gray-800 px-6 last:border-b-4"
                   >
                     <AccordionTrigger className="text-lg font-bold text-black dark:text-white hover:no-underline">
                       {faq.q}
@@ -560,8 +561,19 @@ export default function SVGConverterPage({ params }: PageProps) {
 
       {/* Footer */}
       <footer className="border-t-4 border-black dark:border-white mt-20 py-8 bg-white dark:bg-gray-950">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-black dark:text-white font-mono">© 2025 SVG Converter • Powered by Cloudflare</p>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-black dark:text-white font-mono text-center sm:text-left">
+              © 2025 SVG Converter • Powered by Cloudflare
+            </p>
+            <div className="flex justify-center sm:justify-end">
+              <Link href={`/${lang}/user-service`} className="inline-flex">
+                <Button className="border-4 border-black bg-lime-500 text-black shadow-[4px_4px_0_0_#000] hover:shadow-[6px_6px_0_0_#000] font-mono">
+                  {t.userServiceAgreement}
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

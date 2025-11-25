@@ -24,6 +24,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: lang === 'ja' ? 0.9 : 0.8, // 日语版本优先级最高
       lastModified: new Date()
     })),
+    // 用户服务协议页面
+    ...languages.map((lang) => ({
+      url: `${baseUrl}/${lang}/user-service`,
+      changeFrequency: 'yearly' as const,
+      priority: 0.5,
+      lastModified: new Date()
+    })),
     // FAQ 和常见页面
     ...languages.flatMap((lang) => [
       {

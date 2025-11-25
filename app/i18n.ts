@@ -35,6 +35,7 @@ export const translations = {
     download: "ダウンロード",
     shareLink: "リンクを共有",
     linkCopied: "コピーされました",
+    userServiceAgreement: "利用規約",
   },
   en: {
     title: "SVG Conversion Tool",
@@ -68,6 +69,7 @@ export const translations = {
     download: "Download",
     shareLink: "Share Link",
     linkCopied: "Copied",
+    userServiceAgreement: "User Service Agreement",
   },
   zh: {
     title: "SVG 转换工具",
@@ -100,10 +102,10 @@ export const translations = {
     download: "下载",
     shareLink: "分享链接",
     linkCopied: "已复制",
+    userServiceAgreement: "用户服务协议",
   },
 } as const
 
 export function getTranslation(locale: Locale) {
   return translations[locale]
 }
-
