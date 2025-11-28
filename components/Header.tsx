@@ -37,6 +37,12 @@ export function Header({ lang }: HeaderProps) {
     zh: "分享链接",
   }
 
+  const svgToCodeText = {
+    ja: "SVG→コード",
+    en: "SVG→Code",
+    zh: "SVG→代码",
+  }
+
   const copiedText = {
     ja: "コピーしました！",
     en: "Copied!",
@@ -57,6 +63,15 @@ export function Header({ lang }: HeaderProps) {
 
           {/* Navigation Controls */}
           <div className="flex items-center gap-3">
+            {/* SVG to Code */}
+            <Link
+              href={`/${lang}/svg-to-code`}
+              className="inline-flex items-center justify-center h-10 px-4 border-4 border-black dark:border-white bg-lime-400 dark:bg-lime-500 text-black font-mono font-bold hover:-translate-y-0.5 hover:shadow-[4px_4px_0_0_#000] dark:hover:shadow-[4px_4px_0_0_#fff] transition-transform shadow-[2px_2px_0_0_#000] dark:shadow-[2px_2px_0_0_#fff]"
+              title={svgToCodeText[lang]}
+            >
+              {svgToCodeText[lang]}
+            </Link>
+
             {/* Language Selector */}
             <Select value={lang} onValueChange={handleLanguageChange}>
               <SelectTrigger className="w-20 border-4 border-black dark:border-white bg-white dark:bg-gray-800 text-black dark:text-white font-mono font-bold shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff]">

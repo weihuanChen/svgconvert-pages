@@ -36,6 +36,48 @@ export const translations = {
     shareLink: "リンクを共有",
     linkCopied: "コピーされました",
     userServiceAgreement: "利用規約",
+    svgToCode: {
+      title: "SVG → コード変換",
+      subtitle: "SVG ファイルをドロップすると、リアルタイムでコードとプレビューを表示します。",
+      uploadCta: "SVG を選択またはドロップ",
+      dropHint: "SVG 以外のファイルは受け付けません。",
+      previewTitle: "SVG プレビュー",
+      codeTitle: "SVG マークアップ",
+      copyCode: "コードをコピー",
+      copySuccess: "コピーしました",
+      clear: "リセット",
+      fileLabel: "ファイル名",
+      emptyState: "左側に SVG をアップロードすると、ここに表示されます。",
+      invalidFile: "SVG ファイルのみアップロードできます。",
+      readError: "SVG の読み込み中に問題が発生しました。",
+      howToTitle: "使い方（3 ステップ）",
+      steps: [
+        { title: "アップロード", description: "SVG ファイルをドロップまたは選択します。" },
+        { title: "確認", description: "左でプレビュー、右でマークアップを確認します。" },
+        { title: "コピー", description: "コードをコピーしてプロジェクトに貼り付けます。" },
+      ],
+      faqTitle: "FAQ",
+      faq: [
+        {
+          question: "アップロードしたファイルは保存されますか？",
+          answer: "ブラウザ内でのみ処理され、サーバーには送信されません。",
+        },
+        {
+          question: "どのくらいのサイズまで対応しますか？",
+          answer: "数 MB 程度の SVG なら即座にプレビューできます。非常に大きい場合は数秒かかることがあります。",
+        },
+        {
+          question: "編集したコードをそのまま使えますか？",
+          answer: "はい、コピーした SVG マークアップを React/HTML にそのまま貼り付けられます。",
+        },
+      ],
+      tipsTitle: "プレビューのヒント",
+      tips: [
+        "SVG 内の <style> はプレビューに反映されます。",
+        "コードを編集しても、すぐにコピペして使えます。",
+        "大きな SVG は読み込みに数秒かかることがあります。"
+      ],
+    },
   },
   en: {
     title: "SVG Conversion Tool",
@@ -70,6 +112,48 @@ export const translations = {
     shareLink: "Share Link",
     linkCopied: "Copied",
     userServiceAgreement: "User Service Agreement",
+    svgToCode: {
+      title: "SVG → Code Playground",
+      subtitle: "Drop an SVG to inspect its markup and see a live render instantly.",
+      uploadCta: "Choose or drop SVG",
+      dropHint: "Only SVG files are accepted.",
+      previewTitle: "SVG Preview",
+      codeTitle: "SVG Markup",
+      copyCode: "Copy code",
+      copySuccess: "Copied",
+      clear: "Reset",
+      fileLabel: "File",
+      emptyState: "Upload an SVG on the left to see it rendered here.",
+      invalidFile: "Only .svg files are supported.",
+      readError: "We ran into an issue reading that SVG.",
+      howToTitle: "How it works (3 steps)",
+      steps: [
+        { title: "Upload", description: "Drop or pick your SVG file." },
+        { title: "Inspect", description: "Preview on the left, read markup on the right." },
+        { title: "Copy", description: "Copy the code and paste it into your project." },
+      ],
+      faqTitle: "FAQ",
+      faq: [
+        {
+          question: "Is my file uploaded to a server?",
+          answer: "No—everything stays in your browser. We don't send your SVG anywhere.",
+        },
+        {
+          question: "How large can the SVG be?",
+          answer: "SVGs of a few megabytes load quickly; very large ones might need a couple seconds.",
+        },
+        {
+          question: "Can I use the markup directly?",
+          answer: "Yes. Copy the SVG markup and paste it into React or plain HTML as-is.",
+        },
+      ],
+      tipsTitle: "Preview Tips",
+      tips: [
+        "<style> inside your SVG will be applied in the preview.",
+        "Tweak the markup and paste it straight into your project.",
+        "Very large SVGs may need a couple seconds to parse."
+      ],
+    },
   },
   zh: {
     title: "SVG 转换工具",
@@ -103,6 +187,48 @@ export const translations = {
     shareLink: "分享链接",
     linkCopied: "已复制",
     userServiceAgreement: "用户服务协议",
+    svgToCode: {
+      title: "SVG → 代码工作台",
+      subtitle: "拖拽 SVG，立即查看源码和实时预览。",
+      uploadCta: "选择或拖拽 SVG",
+      dropHint: "仅支持 SVG 文件。",
+      previewTitle: "SVG 预览",
+      codeTitle: "SVG 源码",
+      copyCode: "复制代码",
+      copySuccess: "已复制",
+      clear: "重置",
+      fileLabel: "文件名",
+      emptyState: "在左侧上传 SVG 后会显示在这里。",
+      invalidFile: "只支持上传 .svg 文件。",
+      readError: "读取 SVG 时出现问题。",
+      howToTitle: "三步快速上手",
+      steps: [
+        { title: "上传", description: "拖拽或选择你的 SVG 文件。" },
+        { title: "查看", description: "左侧预览效果，右侧查看源码。" },
+        { title: "复制", description: "复制代码，直接粘贴到项目中。" },
+      ],
+      faqTitle: "常见问题",
+      faq: [
+        {
+          question: "文件会被上传到服务器吗？",
+          answer: "不会，所有处理都在浏览器本地完成，不会发送到任何服务器。",
+        },
+        {
+          question: "文件多大可以处理？",
+          answer: "几 MB 的 SVG 一般瞬间打开，超大的文件可能需要几秒解析。",
+        },
+        {
+          question: "复制的代码能直接用吗？",
+          answer: "可以，复制后的 SVG 源码可直接用于 React 或普通 HTML。",
+        },
+      ],
+      tipsTitle: "预览小贴士",
+      tips: [
+        "SVG 里的 <style> 会在预览中生效。",
+        "可直接复制源码到你的项目中。",
+        "超大的 SVG 解析可能需要几秒钟。"
+      ],
+    },
   },
 } as const
 
