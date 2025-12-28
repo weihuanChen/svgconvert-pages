@@ -85,6 +85,24 @@ export interface ConversionSettings {
 }
 
 /**
+ * History filters for querying history records
+ */
+export interface HistoryFilters {
+  /** Filter by status */
+  status?: FileItem['status']
+  /** Filter by source format */
+  sourceFormat?: FileFormat
+  /** Filter by target format */
+  targetFormat?: FileFormat
+  /** Filter by date range (start) */
+  startDate?: string
+  /** Filter by date range (end) */
+  endDate?: string
+  /** Search by file name */
+  searchQuery?: string
+}
+
+/**
  * Store state interface
  */
 interface ConversionState {
@@ -94,6 +112,10 @@ interface ConversionState {
 
   /** Active polling task IDs */
   pollingTasks: Set<string>
+
+  // ========== History ==========
+  /** History records (completed/failed tasks) */
+  history: FileItem[]
 
   // ========== Settings ==========
   /** Global conversion settings */
@@ -141,6 +163,22 @@ interface ConversionState {
 
   /** Reset store to initial state */
   reset: () => void
+
+  // ========== History Actions ==========
+  /** Add completed task to history */
+  addToHistory: (fileItem: FileItem) => void
+
+  /** Get history records with optional filters */
+  getHistory: (filters?: HistoryFilters) => FileItem[]
+
+  /** Clear all history records */
+  clearHistory: () => void
+
+  /** Delete a specific history record */
+  deleteHistoryItem: (taskId: string) => void
+
+  /** Clean up old history records (older than specified days) */
+  cleanupOldHistory: (daysToKeep?: number) => void
 }
 
 // ============================================================================
@@ -166,6 +204,7 @@ export const useConversionStore = create<ConversionState>()(
       // ========== Initial State ==========
       files: [],
       pollingTasks: new Set(),
+      history: [],
       settings: initialSettings,
 
       // ========== Actions ==========
@@ -262,13 +301,16 @@ export const useConversionStore = create<ConversionState>()(
       },
 
       updateTaskMetadata: (taskId: string, metadata: TaskMetadata) => {
+        const fileItem = get().files.find((f) => f.taskId === taskId)
+        const newStatus = mapTaskStatusToFileStatus(metadata.status)
+
         set((state) => ({
           files: state.files.map((f) =>
             f.taskId === taskId
               ? {
                   ...f,
                   taskMetadata: metadata,
-                  status: mapTaskStatusToFileStatus(metadata.status),
+                  status: newStatus,
                   errorMessage: metadata.errorMessage,
                   updatedAt: new Date().toISOString()
                 }
@@ -279,6 +321,18 @@ export const useConversionStore = create<ConversionState>()(
         // Stop polling if task is in terminal state
         if (['COMPLETED', 'FAILED', 'CANCELLED'].includes(metadata.status)) {
           get().stopPolling(taskId)
+
+          // Add to history when task completes or fails
+          if (fileItem && (newStatus === 'completed' || newStatus === 'failed')) {
+            const historyItem: FileItem = {
+              ...fileItem,
+              status: newStatus,
+              taskMetadata: metadata,
+              errorMessage: metadata.errorMessage,
+              updatedAt: new Date().toISOString()
+            }
+            get().addToHistory(historyItem)
+          }
         }
       },
 
@@ -375,6 +429,82 @@ export const useConversionStore = create<ConversionState>()(
           pollingTasks: new Set(),
           settings: initialSettings
         })
+      },
+
+      // ========== History Actions ==========
+
+      addToHistory: (fileItem: FileItem) => {
+        // Don't add if already in history
+        const exists = get().history.some((h) => h.taskId === fileItem.taskId)
+        if (exists) {
+          // Update existing history item
+          set((state) => ({
+            history: state.history.map((h) =>
+              h.taskId === fileItem.taskId ? fileItem : h
+            )
+          }))
+        } else {
+          // Add new history item
+          set((state) => ({
+            history: [fileItem, ...state.history]
+          }))
+        }
+      },
+
+      getHistory: (filters?: HistoryFilters) => {
+        let history = [...get().history]
+
+        if (filters) {
+          if (filters.status) {
+            history = history.filter((h) => h.status === filters.status)
+          }
+          if (filters.sourceFormat) {
+            history = history.filter((h) => h.sourceFormat === filters.sourceFormat)
+          }
+          if (filters.targetFormat) {
+            history = history.filter((h) => h.targetFormat === filters.targetFormat)
+          }
+          if (filters.startDate) {
+            history = history.filter((h) => h.createdAt >= filters.startDate!)
+          }
+          if (filters.endDate) {
+            history = history.filter((h) => h.createdAt <= filters.endDate!)
+          }
+          if (filters.searchQuery) {
+            const query = filters.searchQuery.toLowerCase()
+            history = history.filter((h) =>
+              h.fileName.toLowerCase().includes(query) ||
+              h.taskId?.toLowerCase().includes(query)
+            )
+          }
+        }
+
+        // Sort by creation date (newest first)
+        return history.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      },
+
+      clearHistory: () => {
+        set({ history: [] })
+      },
+
+      deleteHistoryItem: (taskId: string) => {
+        set((state) => ({
+          history: state.history.filter((h) => h.taskId !== taskId)
+        }))
+      },
+
+      cleanupOldHistory: (daysToKeep: number = 30) => {
+        const cutoffDate = new Date()
+        cutoffDate.setDate(cutoffDate.getDate() - daysToKeep)
+
+        set((state) => ({
+          history: state.history.filter((h) => {
+            const createdAt = new Date(h.createdAt)
+            return createdAt >= cutoffDate
+          })
+        }))
       }
     }),
     {
@@ -385,6 +515,11 @@ export const useConversionStore = create<ConversionState>()(
         settings: state.settings,
         files: state.files.map((f) => ({
           ...f,
+          file: undefined, // Don't persist File objects
+          previewUrl: undefined // Don't persist blob URLs
+        })),
+        history: state.history.map((h) => ({
+          ...h,
           file: undefined, // Don't persist File objects
           previewUrl: undefined // Don't persist blob URLs
         }))

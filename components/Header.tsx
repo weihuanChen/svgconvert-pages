@@ -43,6 +43,12 @@ export function Header({ lang }: HeaderProps) {
     zh: "SVG→代码",
   }
 
+  const historyText = {
+    ja: "履歴",
+    en: "History",
+    zh: "历史",
+  }
+
   const copiedText = {
     ja: "コピーしました！",
     en: "Copied!",
@@ -63,6 +69,15 @@ export function Header({ lang }: HeaderProps) {
 
           {/* Navigation Controls */}
           <div className="flex items-center gap-3">
+            {/* History */}
+            <Link
+              href={`/${lang}/history`}
+              className="inline-flex items-center justify-center h-10 px-4 border-4 border-black dark:border-white bg-white dark:bg-gray-800 text-black dark:text-white font-mono font-bold hover:bg-lime-400 dark:hover:bg-lime-500 hover:text-black shadow-[4px_4px_0_0_#000] dark:shadow-[4px_4px_0_0_#fff] transition-colors"
+              title={historyText[lang]}
+            >
+              {historyText[lang]}
+            </Link>
+
             {/* SVG to Code */}
             <Link
               href={`/${lang}/svg-to-code`}

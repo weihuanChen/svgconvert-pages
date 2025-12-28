@@ -394,6 +394,96 @@ export default function SVGConverterPage({ params }: PageProps) {
               </div>
             </div>
 
+            {/* SEO Section */}
+            <div className="max-w-4xl mx-auto mb-16">
+              <h3 className="text-3xl font-bold text-center mb-8 text-black dark:text-white font-mono">{t.seoSection.title}</h3>
+              <p className="text-center text-lg text-black/80 dark:text-white/80 mb-8 font-mono">{t.seoSection.description}</p>
+
+              <div className="grid md:grid-cols-2 gap-6 mb-8">
+                {/* Features */}
+                <div className="border-4 border-black dark:border-white shadow-[6px_6px_0_0_#000] dark:shadow-[6px_6px_0_0_#fff] bg-white dark:bg-gray-800 p-6">
+                  <h4 className="text-xl font-bold mb-4 text-black dark:text-white font-mono">{t.seoSection.features.title}</h4>
+                  <ul className="space-y-2 text-black dark:text-white">
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.features.item1}</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.features.item2}</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.features.item3}</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.features.item4}</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.features.item5}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Boundaries */}
+                <div className="border-4 border-black dark:border-white shadow-[6px_6px_0_0_#000] dark:shadow-[6px_6px_0_0_#fff] bg-white dark:bg-gray-800 p-6">
+                  <h4 className="text-xl font-bold mb-4 text-black dark:text-white font-mono">{t.seoSection.boundaries.title}</h4>
+                  <ul className="space-y-2 text-black dark:text-white">
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.boundaries.item1}</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.boundaries.item2}</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.boundaries.item3}</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.boundaries.item4}</span>
+                    </li>
+                    <li className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{t.seoSection.boundaries.item5}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* History Feature */}
+              <div className="border-4 border-black dark:border-white shadow-[6px_6px_0_0_#000] dark:shadow-[6px_6px_0_0_#fff] bg-white dark:bg-gray-800 p-6 mb-6">
+                <h4 className="text-xl font-bold mb-3 text-black dark:text-white font-mono">{t.seoSection.history.title}</h4>
+                <p className="text-black dark:text-white mb-4 font-mono">{t.seoSection.history.description}</p>
+                <ul className="space-y-2 text-black dark:text-white">
+                  {t.seoSection.history.details.map((detail, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Privacy Policy */}
+              <div className="border-4 border-black dark:border-white shadow-[6px_6px_0_0_#000] dark:shadow-[6px_6px_0_0_#fff] bg-white dark:bg-gray-800 p-6">
+                <h4 className="text-xl font-bold mb-3 text-black dark:text-white font-mono">{t.seoSection.privacy.title}</h4>
+                <p className="text-black dark:text-white mb-4 font-mono">{t.seoSection.privacy.description}</p>
+                <ul className="space-y-2 text-black dark:text-white">
+                  {t.seoSection.privacy.details.map((detail, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <span className="mr-2 font-bold">•</span>
+                      <span>{detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
             {/* FAQ */}
             <div className="max-w-3xl mx-auto">
               <h3 className="text-3xl font-bold text-center mb-8 text-black dark:text-white font-mono">{t.faq}</h3>
