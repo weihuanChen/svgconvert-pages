@@ -1,0 +1,12 @@
+[
+  {
+    "title": "home",
+    "slug": "/",
+    "description": "Home page providing SVG conversion entry, quick access to the SVG→Code tool, language switcher (JA/EN/ZH), light/dark theme toggle, and share-link button."
+  },
+  {
+    "title": "svg-to-code",
+    "slug": "/svg-to-code",
+    "description": "Dedicated SVG-to-code playground for converting SVG graphics into framework-friendly code snippets, with language-aware UI and consistent SVG Converter styling."
+  }
+]

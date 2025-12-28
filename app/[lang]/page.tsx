@@ -397,7 +397,7 @@ export default function SVGConverterPage({ params }: PageProps) {
             {/* FAQ */}
             <div className="max-w-3xl mx-auto">
               <h3 className="text-3xl font-bold text-center mb-8 text-black dark:text-white font-mono">{t.faq}</h3>
-              <Accordion type="single" collapsible className="space-y-4">
+              <Accordion type="multiple" defaultValue={["item-0", "item-1", "item-2"]} className="space-y-4">
                 {[
                   { q: t.faqQuestion1, a: t.faqAnswer1 },
                   { q: t.faqQuestion2, a: t.faqAnswer2 },

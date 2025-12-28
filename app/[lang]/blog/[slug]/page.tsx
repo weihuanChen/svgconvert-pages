@@ -1,4 +1,4 @@
-import { getPostBySlugFromCMS, getAllPostSlugsFromCMS } from '@/lib/blog'
+import { getPostBySlugFromCMS, getPostSlugsWithLanguagesFromCMS } from '@/lib/blog'
 import { type Locale } from '@/lib/types'
 import { notFound } from 'next/navigation'
 import { TableOfContents } from '@/components/blog/TableOfContents'
@@ -26,12 +26,11 @@ interface BlogPostPageProps {
 
 export async function generateStaticParams() {
   try {
-    const slugs = await getAllPostSlugsFromCMS()
-    const locales: Locale[] = ['ja', 'en', 'zh']
+    const slugLocales = await getPostSlugsWithLanguagesFromCMS()
 
     // 为每个 locale 和 slug 的组合生成参数
-    const params = locales.flatMap((lang) =>
-      slugs.map((slug) => ({ lang, slug }))
+    const params = slugLocales.flatMap(({ slug, languages }) =>
+      languages.map((lang) => ({ lang, slug }))
     )
 
     return params

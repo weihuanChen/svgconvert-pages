@@ -7,6 +7,7 @@ const DISABLE_CACHE = process.env.DISABLE_BLOG_CACHE === 'true'
 
 // 缓存时间：12小时
 const CACHE_REVALIDATE = 43200
+const SUPPORTED_LOCALES: Locale[] = ['ja', 'en', 'zh']
 
 // 计算阅读时间（基于字数）
 function calculateReadingTime(content: string): number {
@@ -248,6 +249,11 @@ export async function getPostBySlugFromCMS(
     const translation =
       translations && translations.length > 0 ? (translations as PostTranslation[])[0] : null
 
+    // If the requested locale isn't Japanese and there's no translation, treat it as not found
+    if (locale !== 'ja' && !translation) {
+      return null
+    }
+
     return transformPost(post, translation, locale)
   } catch (error) {
     console.error('Error fetching post by slug:', error)
@@ -273,6 +279,64 @@ export async function getAllPostSlugsFromCMS(): Promise<string[]> {
     return (posts as DirectusPost[]).map((post) => post.slug)
   } catch (error) {
     console.error('Error fetching post slugs:', error)
+    return []
+  }
+}
+
+/**
+ * 获取每篇文章可用的语言列表（用于生成 sitemap 和静态参数）
+ */
+export async function getPostSlugsWithLanguagesFromCMS(): Promise<
+  Array<{ slug: string; languages: Locale[] }>
+> {
+  try {
+    const posts = await directus.request(
+      readItems('posts', {
+        filter: {
+          status: { _eq: 'published' },
+          site_id: { _eq: SITE_ID },
+        },
+        fields: ['id', 'slug'],
+        limit: -1,
+      })
+    )
+
+    if (!Array.isArray(posts) || posts.length === 0) {
+      return []
+    }
+
+    const postIds = (posts as DirectusPost[]).map((post) => post.id)
+    const translations = await directus.request(
+      readItems('post_translation', {
+        filter: {
+          post_id: { _in: postIds },
+          language_code: { _in: SUPPORTED_LOCALES.filter((locale) => locale !== 'ja') },
+        },
+        fields: ['post_id', 'language_code'],
+        limit: -1,
+      })
+    )
+
+    const translationMap = new Map<string, Set<Locale>>()
+    for (const translation of translations as PostTranslation[]) {
+      if (!SUPPORTED_LOCALES.includes(translation.language_code as Locale)) {
+        continue
+      }
+      const languages = translationMap.get(translation.post_id) || new Set<Locale>()
+      languages.add(translation.language_code as Locale)
+      translationMap.set(translation.post_id, languages)
+    }
+
+    return (posts as DirectusPost[]).map((post) => {
+      const availableTranslations = translationMap.get(post.id)
+      const languages = SUPPORTED_LOCALES.filter(
+        (locale) => locale === 'ja' || availableTranslations?.has(locale)
+      )
+
+      return { slug: post.slug, languages }
+    })
+  } catch (error) {
+    console.error('Error fetching post slugs with languages:', error)
     return []
   }
 }

@@ -36,6 +36,12 @@ export const translations = {
     shareLink: "リンクを共有",
     linkCopied: "コピーされました",
     userServiceAgreement: "利用規約",
+    notFound: {
+      title: "ページが見つかりません",
+      description: "お探しのページは存在しないか、移動された可能性があります。",
+      goHome: "ホームに戻る",
+      goBlog: "ブログを見る",
+    },
     svgToCode: {
       title: "SVG → コード変換",
       subtitle: "SVG ファイルをドロップすると、リアルタイムでコードとプレビューを表示します。",
@@ -112,6 +118,12 @@ export const translations = {
     shareLink: "Share Link",
     linkCopied: "Copied",
     userServiceAgreement: "User Service Agreement",
+    notFound: {
+      title: "Page Not Found",
+      description: "The page you are looking for doesn't exist or has been moved.",
+      goHome: "Go Home",
+      goBlog: "View Blog",
+    },
     svgToCode: {
       title: "SVG → Code Playground",
       subtitle: "Drop an SVG to inspect its markup and see a live render instantly.",
@@ -187,6 +199,12 @@ export const translations = {
     shareLink: "分享链接",
     linkCopied: "已复制",
     userServiceAgreement: "用户服务协议",
+    notFound: {
+      title: "页面未找到",
+      description: "您访问的页面不存在或已被移动。",
+      goHome: "返回首页",
+      goBlog: "查看博客",
+    },
     svgToCode: {
       title: "SVG → 代码工作台",
       subtitle: "拖拽 SVG，立即查看源码和实时预览。",
